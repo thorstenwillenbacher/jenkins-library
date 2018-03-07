@@ -1,6 +1,7 @@
 language: groovy
 sudo: false
 install:
+- wget https://www.python.org/ftp/python/2.7.13/Python-2.7.13.tgz |tar -C  -xvf; ls -la 
 - pip install --user mkdocs mkdocs-material
 script:
 - mvn test -B

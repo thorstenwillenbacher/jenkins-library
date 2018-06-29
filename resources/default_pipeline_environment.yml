@@ -170,3 +170,9 @@ steps:
       git_to: 'HEAD'
       git_label: 'ChangeDocument\s?:'
       git_format: '%b'
+  transportRequestCreate:
+      credentialsId: 'CM'
+  transportRequestUploadFile:
+      credentialsId: 'CM'
+  transportRequestRelease:
+      credentialsId: 'CM'

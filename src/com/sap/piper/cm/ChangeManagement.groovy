@@ -105,12 +105,13 @@ public class ChangeManagement implements Serializable {
         }
     }
 
-    void releaseTransportRequest(String changeId, String transportRequestId, String endpoint, String username, String password) {
+    void releaseTransportRequest(String changeId, String transportRequestId, String endpoint, String username, String password, String cmclientOpts = '') {
 
         int rc = script.sh(returnStatus: true,
                     script: getCMCommandLine(endpoint, username, password,
                                             'release-transport', ['-cID', changeId,
-                                                                  '-tID', transportRequestId]))
+                                                                  '-tID', transportRequestId],
+                                                                cmclientOpts))
 
         if(rc == 0) {
             return

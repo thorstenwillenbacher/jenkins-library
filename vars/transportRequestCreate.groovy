@@ -12,6 +12,7 @@ import hudson.AbortException
 
 @Field Set parameterKeys = [
     'changeDocumentId',
+    'cmClientOpts',
     'developmentSystemId',
     'credentialsId',
     'endpoint'
@@ -19,6 +20,7 @@ import hudson.AbortException
 
 @Field Set stepConfigurationKeys = [
     'credentialsId',
+    'cmClientOpts',
     'endpoint'
   ]
 
@@ -56,7 +58,7 @@ def call(parameters = [:]) {
             usernameVariable: 'username')]) {
 
             try {
-                transportRequestId = cm.createTransportRequest(changeDocumentId, developmentSystemId, endpoint, username, password)
+                transportRequestId = cm.createTransportRequest(changeDocumentId, developmentSystemId, endpoint, username, password, parameters.cmClientOpts)
             } catch(ChangeManagementException ex) {
                 throw new AbortException(ex.getMessage())
             }

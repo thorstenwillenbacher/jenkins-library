@@ -51,7 +51,8 @@ public class TransportRequestCreateTest extends BasePiperTest {
                                      [transportRequestCreate:
                                          [
                                           credentialsId: 'CM',
-                                          endpoint: 'https://example.org/cm'
+                                          endpoint: 'https://example.org/cm',
+                                          cmClientOpts: '-DmyKey=myVal'
                                          ]
                                      ]
                                  ]
@@ -84,7 +85,8 @@ public class TransportRequestCreateTest extends BasePiperTest {
                                           String developmentSystemId,
                                           String cmEndpoint,
                                           String username,
-                                          String password) {
+                                          String password,
+                                          String cmClientOpts) {
 
                     throw new ChangeManagementException('Exception message.')
             }
@@ -108,13 +110,15 @@ public class TransportRequestCreateTest extends BasePiperTest {
                                           String developmentSystemId,
                                           String cmEndpoint,
                                           String username,
-                                          String password) {
+                                          String password,
+                                          String cmClientOpts) {
 
                 result.changeId = changeId
                 result.developmentSystemId = developmentSystemId
                 result.cmEndpoint = cmEndpoint
                 result.username = username
                 result.password = password
+                result.cmClientOpts = cmClientOpts
                 return '001'
             }
         }
@@ -126,7 +130,8 @@ public class TransportRequestCreateTest extends BasePiperTest {
                          developmentSystemId: '001',
                          cmEndpoint: 'https://example.org/cm',
                          username: 'anonymous',
-                         password: '********'
+                         password: '********',
+                         cmClientOpts: '-DmyKey=myVal'
                          ]
 
         assert jlr.log.contains("[INFO] Creating transport request for change document '001' and development system '001'.")

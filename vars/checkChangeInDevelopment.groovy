@@ -15,10 +15,10 @@ import com.sap.piper.cm.ChangeManagementException
     'credentialsId',
     'endpoint',
     'failIfStatusIsNotInDevelopment',
-    'git_from',
-    'git_to',
-    'git_label',
-    'git_format'
+    'gitFrom',
+    'gitTo',
+    'gitLabel',
+    'gitFormat'
   ]
 
 @Field Set stepConfigurationKeys = [
@@ -27,10 +27,10 @@ import com.sap.piper.cm.ChangeManagementException
     'credentialsId',
     'endpoint',
     'failIfStatusIsNotInDevelopment',
-    'git_from',
-    'git_to',
-    'git_label',
-    'git_format'
+    'gitFrom',
+    'gitTo',
+    'gitLabel',
+    'gitFormat'
   ]
 
 @Field Set generalConfigurationKeys = stepConfigurationKeys

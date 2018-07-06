@@ -91,13 +91,14 @@ public class ChangeManagement implements Serializable {
         }
     }
 
-    void uploadFileToTransportRequest(String changeId, String transportRequestId, String applicationId, String filePath, String endpoint, String username, String password) {
+    void uploadFileToTransportRequest(String changeId, String transportRequestId, String applicationId, String filePath, String endpoint, String username, String password, String cmclientOpts = '') {
 
         int rc = script.sh(returnStatus: true,
                     script: getCMCommandLine(endpoint, username, password,
                                             'upload-file-to-transport', ['-cID', changeId,
                                                                          '-tID', transportRequestId,
-                                                                         applicationId, filePath]))
+                                                                         applicationId, filePath],
+                                                                        cmclientOpts))
 
         if(rc == 0) {
             return
@@ -106,12 +107,13 @@ public class ChangeManagement implements Serializable {
         }
     }
 
-    void releaseTransportRequest(String changeId, String transportRequestId, String endpoint, String username, String password) {
+    void releaseTransportRequest(String changeId, String transportRequestId, String endpoint, String username, String password, String cmclientOpts = '') {
 
         int rc = script.sh(returnStatus: true,
                     script: getCMCommandLine(endpoint, username, password,
                                             'release-transport', ['-cID', changeId,
-                                                                  '-tID', transportRequestId]))
+                                                                  '-tID', transportRequestId],
+                                                                cmclientOpts))
 
         if(rc == 0) {
             return

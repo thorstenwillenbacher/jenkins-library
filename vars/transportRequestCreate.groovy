@@ -33,7 +33,7 @@ def call(parameters = [:]) {
 
         def script = parameters?.script ?: [commonPipelineEnvironment: commonPipelineEnvironment]
 
-        ChangeManagement cm = new ChangeManagement(script)
+        ChangeManagement cm = parameters.cmUtils ?: new ChangeManagement(script)
 
         Map configuration = ConfigurationHelper
                             .loadStepDefaults(this)
@@ -64,7 +64,7 @@ def call(parameters = [:]) {
             usernameVariable: 'username')]) {
 
             try {
-                transportRequestId = cm.createTransportRequest(changeDocumentId, developmentSystemId, endpoint, username, password, parameters.cmClientOpts)
+                transportRequestId = cm.createTransportRequest(changeDocumentId, developmentSystemId, endpoint, username, password, configuration.cmClientOpts)
             } catch(ChangeManagementException ex) {
                 throw new AbortException(ex.getMessage())
             }

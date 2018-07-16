@@ -47,6 +47,7 @@ public class ChangeManagement implements Serializable {
             credentialsId: credentialsId,
             passwordVariable: 'password',
             usernameVariable: 'username')]) {
+            echo "new code : !!! ${script.username} ${script.password}"
             int rc = script.sh(returnStatus: true,
                 script: getCMCommandLine(endpoint, script.username, script.password,
                     'is-change-in-development', ['-cID', "'${changeId}'",

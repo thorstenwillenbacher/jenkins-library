@@ -42,22 +42,26 @@ public class ChangeManagement implements Serializable {
         return changeIds.get(0)
     }
 
-    boolean isChangeInDevelopment(String changeId, String endpoint, String username, String password, String clientOpts = '') {
+    boolean isChangeInDevelopment(String changeId, String endpoint, String credentialsId, String clientOpts = '') {
+        script.withCredentials([script.usernamePassword(
+            credentialsId: credentialsId,
+            passwordVariable: 'password',
+            usernameVariable: 'username')]) {
+            int rc = script.sh(returnStatus: true,
+                script: getCMCommandLine(endpoint, script.username, script.password,
+                    'is-change-in-development', ['-cID', "'${changeId}'",
+                                                 '--return-code'],
+                    clientOpts))
 
-                int rc = script.sh(returnStatus: true,
-                            script: getCMCommandLine(endpoint, username, password,
-                                                     'is-change-in-development', ['-cID', "'${changeId}'",
-                                                                                   '--return-code'],
-                                                                               clientOpts))
-
-                if(rc == 0) {
-                    return true
-                } else if(rc == 3) {
-                    return false
-                } else {
-                    throw new ChangeManagementException("Cannot retrieve status for change document '${changeId}'. Does this change exist? Return code from cmclient: ${rc}.")
-                }
+            if (rc == 0) {
+                return true
+            } else if (rc == 3) {
+                return false
+            } else {
+                throw new ChangeManagementException("Cannot retrieve status for change document '${changeId}'. Does this change exist? Return code from cmclient: ${rc}.")
             }
+        }
+    }
 
     String createTransportRequest(String changeId, String developmentSystemId, String endpoint, String username, String password, String clientOpts = '') {
 

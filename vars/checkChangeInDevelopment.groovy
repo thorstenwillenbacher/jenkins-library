@@ -81,21 +81,16 @@ def call(parameters = [:]) {
 
         echo "[INFO] Checking if change document '${configuration.changeDocumentId}' is in development."
 
-        withCredentials([usernamePassword(
-            credentialsId: configuration.credentialsId,
-            passwordVariable: 'password',
-            usernameVariable: 'username')]) {
 
             try {
                 isInDevelopment = cm.isChangeInDevelopment(configuration.changeDocumentId,
                                                            configuration.endpoint,
-                                                           username,
-                                                           password,
+                                                        configuration.credentialsId,
                                                            configuration.cmClientOpts)
             } catch(ChangeManagementException ex) {
                 throw new AbortException(ex.getMessage())
             }
-        }
+
 
         if(isInDevelopment) {
             echo "[INFO] Change '${changeId}' is in status 'in development'."

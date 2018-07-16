@@ -14,6 +14,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.rules.RuleChain
+import org.junit.Before
 
 import com.sap.piper.GitUtils
 
@@ -32,6 +33,17 @@ public class ChangeManagementTest extends BasePiperTest {
     private JenkinsShellCallRule script = new JenkinsShellCallRule(this)
     private JenkinsLoggingRule logging = new JenkinsLoggingRule(this)
 
+    @Before
+    public void setup() {
+        helper.registerAllowedMethod('usernamePassword', [Map], { Map m ->
+            nullScript.setProperty("username","user")
+            nullScript.setProperty("password","password")
+        })
+
+        helper.registerAllowedMethod('withCredentials', [List, Closure], { List l, Closure c ->
+            c()
+        })
+    }
     @Rule
     public RuleChain rules = Rules.getCommonRules(this)
         .around(thrown)
@@ -90,7 +102,6 @@ public class ChangeManagementTest extends BasePiperTest {
     public void testIsChangeInDevelopmentReturnsTrueWhenChangeIsInDevelopent() {
 
         script.setReturnValue(JenkinsShellCallRule.Type.REGEX, "cmclient.*is-change-in-development -cID '001'", 0)
-
         boolean inDevelopment = new ChangeManagement(nullScript, null).isChangeInDevelopment('001', 'endpoint', 'user', 'password')
 
         assertThat(inDevelopment, is(equalTo(true)))
@@ -124,7 +135,6 @@ public class ChangeManagementTest extends BasePiperTest {
         thrown.expectMessage('Cannot retrieve status for change document \'001\'. Does this change exist? Return code from cmclient: 1.')
 
         script.setReturnValue(JenkinsShellCallRule.Type.REGEX, "cmclient.*is-change-in-development -cID '001'", 1)
-
         new ChangeManagement(nullScript, null).isChangeInDevelopment('001', 'endpoint', 'user', 'password')
     }
 

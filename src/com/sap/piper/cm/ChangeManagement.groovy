@@ -47,7 +47,7 @@ public class ChangeManagement implements Serializable {
             credentialsId: credentialsId,
             passwordVariable: 'password',
             usernameVariable: 'username')]) {
-            script.echo "[INFO] Using credential ID ${credentialsId} to connect with endpoint ${endpoint}"
+            script.echo "[INFO] Using credential ID '${credentialsId}' to connect with endpoint '${endpoint}'."
             int rc = script.sh(returnStatus: true,
                 script: getCMCommandLine(endpoint, script.username, script.password,
                     'is-change-in-development', ['-cID', "'${changeId}'",

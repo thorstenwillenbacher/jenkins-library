@@ -28,7 +28,6 @@ class CheckChangeInDevelopmentTest extends BasePiperTest {
         .around(new JenkinsCredentialsRule(this)
             .withCredentials('CM', 'anonymous', '********'))
 
-
     @After
     public void tearDown() {
         cmUtilReceivedParams.clear()

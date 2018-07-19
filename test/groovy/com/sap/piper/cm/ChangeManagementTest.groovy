@@ -35,9 +35,12 @@ public class ChangeManagementTest extends BasePiperTest {
 
     @Before
     public void setup() {
+        nullScript.setProperty("username","user")
+        nullScript.setProperty("password","password")
+
         helper.registerAllowedMethod('usernamePassword', [Map], { Map m ->
-            nullScript.setProperty("username","user")
-            nullScript.setProperty("password","password")
+            binding.setProperty('username', 'defaultUser')
+            binding.setProperty('password', '********')
         })
 
         helper.registerAllowedMethod('withCredentials', [List, Closure], { List l, Closure c ->
@@ -168,7 +171,7 @@ public void testGetCommandLineWithCMClientOpts() {
     public void testCreateTransportRequestSucceeds() {
 
         script.setReturnValue(JenkinsShellCallRule.Type.REGEX, ".*cmclient.*create-transport -cID 001 -dID 002.*", '004')
-        def transportRequestId = new ChangeManagement(nullScript).createTransportRequest('001', '002', '003', 'me', 'openSesame')
+        def transportRequestId = new ChangeManagement(nullScript).createTransportRequest('001', '002', '003', 'CM')
 
         // the check for the transportRequestID is sufficient. This checks implicit the command line since that value is
         // returned only in case the shell call matches.

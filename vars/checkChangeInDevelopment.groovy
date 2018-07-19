@@ -86,6 +86,7 @@ def call(parameters = [:]) {
                 isInDevelopment = cm.isChangeInDevelopment(configuration.changeDocumentId,
                                                            configuration.endpoint,
                                                            configuration.credentialsId,
+
                                                            configuration.cmClientOpts)
             } catch(ChangeManagementException ex) {
                 throw new AbortException(ex.getMessage())

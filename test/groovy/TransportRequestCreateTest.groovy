@@ -8,6 +8,7 @@ import com.sap.piper.cm.ChangeManagement
 import com.sap.piper.cm.ChangeManagementException
 
 import util.BasePiperTest
+import util.JenkinsCredentialsRule
 import util.JenkinsStepRule
 import util.JenkinsLoggingRule
 import util.Rules
@@ -26,6 +27,8 @@ public class TransportRequestCreateTest extends BasePiperTest {
         .around(thrown)
         .around(jsr)
         .around(jlr)
+        .around(new JenkinsCredentialsRule(this)
+            .withCredentials('CM', 'anonymous', '********'))
 
     @Before
     public void setup() {

@@ -11,6 +11,7 @@ import com.sap.piper.cm.ChangeManagementException
 
 import hudson.AbortException
 import util.BasePiperTest
+import util.JenkinsCredentialsRule
 import util.JenkinsStepRule
 import util.Rules
 
@@ -24,6 +25,9 @@ class CheckChangeInDevelopmentTest extends BasePiperTest {
         .getCommonRules(this)
         .around(thrown)
         .around(jsr)
+        .around(new JenkinsCredentialsRule(this)
+            .withCredentials('CM', 'anonymous', '********'))
+
 
     @After
     public void tearDown() {
@@ -123,7 +127,7 @@ class CheckChangeInDevelopmentTest extends BasePiperTest {
 
         thrown.expect(IllegalArgumentException)
         thrown.expectMessage("No changeDocumentId provided. Neither via parameter 'changeDocumentId' " +
-                             "nor via label 'configuration.gitChangeIdLabel' in commit range " +
+                             "nor via label 'ChangeDocument\\s?:' in commit range " +
                              "[from: origin/master, to: HEAD].")
 
         ChangeManagement cm = getChangeManagementUtils(false, null)
@@ -137,7 +141,7 @@ class CheckChangeInDevelopmentTest extends BasePiperTest {
 
         thrown.expect(IllegalArgumentException)
         thrown.expectMessage("No changeDocumentId provided. Neither via parameter 'changeDocumentId' " +
-                             "nor via label 'configuration.gitChangeIdLabel' in commit range " +
+                             "nor via label 'ChangeDocument\\s?:' in commit range " +
                              "[from: origin/master, to: HEAD].")
 
         ChangeManagement cm = getChangeManagementUtils(false, '')

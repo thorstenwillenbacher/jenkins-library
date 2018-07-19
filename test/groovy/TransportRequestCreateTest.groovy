@@ -30,23 +30,6 @@ public class TransportRequestCreateTest extends BasePiperTest {
     @Before
     public void setup() {
 
-        helper.registerAllowedMethod('usernamePassword', [Map.class], {m -> return m})
-
-        helper.registerAllowedMethod('withCredentials', [List, Closure], { l, c ->
-
-            credentialsId = l[0].credentialsId
-            binding.setProperty('username', 'anonymous')
-            binding.setProperty('password', '********')
-            try {
-                c()
-            } finally {
-                binding.setProperty('username', null)
-                binding.setProperty('password', null)
-            }
-         })
-
-        helper.registerAllowedMethod('sh', [Map], { Map m -> return 0 })
-
         nullScript.commonPipelineEnvironment.configuration = [steps:
                                      [transportRequestCreate:
                                          [
@@ -94,8 +77,7 @@ public class TransportRequestCreateTest extends BasePiperTest {
             String createTransportRequest(String changeId,
                                           String developmentSystemId,
                                           String cmEndpoint,
-                                          String username,
-                                          String password,
+                                          String credentialId,
                                           String clientOpts) {
 
                     throw new ChangeManagementException('Exception message.')
@@ -119,15 +101,14 @@ public class TransportRequestCreateTest extends BasePiperTest {
             String createTransportRequest(String changeId,
                                           String developmentSystemId,
                                           String cmEndpoint,
-                                          String username,
-                                          String password,
+                                          String credentialId,
                                           String clientOpts) {
 
                 result.changeId = changeId
                 result.developmentSystemId = developmentSystemId
                 result.cmEndpoint = cmEndpoint
-                result.username = username
-                result.password = password
+                result.credentialId = credentialId
+
                 result.clientOpts = clientOpts
                 return '001'
             }
@@ -139,8 +120,7 @@ public class TransportRequestCreateTest extends BasePiperTest {
         assert result == [changeId: '001',
                          developmentSystemId: '001',
                          cmEndpoint: 'https://example.org/cm',
-                         username: 'anonymous',
-                         password: '********',
+                         credentialId: 'CM',
                          clientOpts: '-DmyProp=myVal'
                          ]
 

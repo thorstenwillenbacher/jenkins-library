@@ -64,14 +64,25 @@ public class ChangeManagement implements Serializable {
         }
     }
 
-    String createTransportRequest(String changeId, String developmentSystemId, String endpoint, String username, String password, String clientOpts = '') {
+    String createTransportRequest(String changeId, String developmentSystemId, String endpoint, String credentialsId, String clientOpts = '') {
 
         try {
-          String transportRequest = script.sh(returnStdout: true,
-                    script: getCMCommandLine(endpoint, username, password, 'create-transport', ['-cID', changeId,
-                                                                                                '-dID', developmentSystemId],
-                                                                                              clientOpts))
-          return transportRequest.trim()
+            script.withCredentials([script.usernamePassword(
+                credentialsId: credentialsId,
+                passwordVariable: 'password',
+                usernameVariable: 'username')]) {
+                script.echo "[INFO] Using credential ID '${credentialsId}' to connect with endpoint '${endpoint}'."
+                script.echo "[INFO] Creating transport-request for Change-ID '${changeId}' in system '${developmentSystemId}'."
+                String transportRequest = script.sh(returnStdout: true,
+                                                    script: getCMCommandLine(endpoint,
+                                                                             script.username,
+                                                                             script.password,
+                                                                            'create-transport', ['-cID', changeId, '-dID', developmentSystemId],
+                                                                             clientOpts
+                                                                             )
+                                                   )
+                return transportRequest.trim()
+            }
         } catch(AbortException e) {
           throw new ChangeManagementException("Cannot create a transport request for change id '$changeId'. $e.message.")
         }

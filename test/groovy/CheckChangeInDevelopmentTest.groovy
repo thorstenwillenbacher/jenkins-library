@@ -41,15 +41,15 @@ class CheckChangeInDevelopmentTest extends BasePiperTest {
         ChangeManagement cm = getChangeManagementUtils(true)
         boolean inDevelopment = jsr.step.checkChangeInDevelopment(
                                     cmUtils: cm,
-                                    endpoint: 'https://example.org/cm')
+                                    changeManagement: [endpoint: 'https://example.org/cm'])
 
         assert inDevelopment
-
+        System.err << " ERROR: ${cmUtilReceivedParams}"
         assert cmUtilReceivedParams == [
             changeId: '001',
             endpoint: 'https://example.org/cm',
             credentialsId: 'CM',
-            cmclientOpts: null
+            cmclientOpts: ''
         ]
     }
 
@@ -62,7 +62,7 @@ class CheckChangeInDevelopmentTest extends BasePiperTest {
         ChangeManagement cm = getChangeManagementUtils(false)
         jsr.step.checkChangeInDevelopment(
             cmUtils: cm,
-            endpoint: 'https://example.org/cm')
+            changeManagement: [endpoint: 'https://example.org/cm'])
     }
 
     @Test
@@ -71,7 +71,7 @@ class CheckChangeInDevelopmentTest extends BasePiperTest {
         ChangeManagement cm = getChangeManagementUtils(false)
         boolean inDevelopment = jsr.step.checkChangeInDevelopment(
                                     cmUtils: cm,
-                                    endpoint: 'https://example.org/cm',
+                                    changeManagement: [endpoint: 'https://example.org/cm'],
                                     failIfStatusIsNotInDevelopment: false)
         assert !inDevelopment
     }
@@ -83,7 +83,7 @@ class CheckChangeInDevelopmentTest extends BasePiperTest {
         jsr.step.checkChangeInDevelopment(
             changeDocumentId: '42',
             cmUtils: cm,
-            endpoint: 'https://example.org/cm')
+            changeManagement: [endpoint: 'https://example.org/cm'])
 
         assert cmUtilReceivedParams.changeId == '42'
     }
@@ -94,7 +94,7 @@ class CheckChangeInDevelopmentTest extends BasePiperTest {
 
         jsr.step.checkChangeInDevelopment(
             cmUtils: cm,
-            endpoint: 'https://example.org/cm')
+            changeManagement : [endpoint: 'https://example.org/cm'])
 
         assert cmUtilReceivedParams.changeId == '0815'
     }
@@ -102,8 +102,9 @@ class CheckChangeInDevelopmentTest extends BasePiperTest {
     @Test
     public void changeDocumentIdRetrievalFailsTest() {
 
-        thrown.expect(AbortException)
-        thrown.expectMessage('Something went wrong')
+        thrown.expect(IllegalArgumentException)
+        thrown.expectMessage("No changeDocumentId provided. Neither via parameter 'changeDocumentId' nor via " +
+                             "label 'ChangeDocument\\s?:' in commit range [from: origin/master, to: HEAD].")
 
         ChangeManagement cm = new ChangeManagement(nullScript, null) {
 
@@ -118,7 +119,7 @@ class CheckChangeInDevelopmentTest extends BasePiperTest {
 
         jsr.step.checkChangeInDevelopment(
             cmUtils: cm,
-            endpoint: 'https://example.org/cm')
+            changeManagement: [endpoint: 'https://example.org/cm'])
     }
 
     @Test
@@ -132,7 +133,7 @@ class CheckChangeInDevelopmentTest extends BasePiperTest {
         ChangeManagement cm = getChangeManagementUtils(false, null)
         jsr.step.checkChangeInDevelopment(
             cmUtils: cm,
-            endpoint: 'https://example.org/cm')
+            changeManagement: [endpoint: 'https://example.org/cm'])
     }
 
     @Test
@@ -146,7 +147,7 @@ class CheckChangeInDevelopmentTest extends BasePiperTest {
         ChangeManagement cm = getChangeManagementUtils(false, '')
         jsr.step.checkChangeInDevelopment(
             cmUtils: cm,
-            endpoint: 'https://example.org/cm')
+            changeManagement: [endpoint: 'https://example.org/cm'])
     }
 
     private ChangeManagement getChangeManagementUtils(boolean inDevelopment, String changeDocumentId = '001') {

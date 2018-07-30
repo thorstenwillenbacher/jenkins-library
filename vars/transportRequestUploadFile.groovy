@@ -12,14 +12,7 @@ import hudson.AbortException
 @Field def STEP_NAME = 'transportRequestUploadFile'
 
 @Field Set generalConfigurationKeys = [
-    'credentialsId',
-    'cmClientOpts',
-    'endpoint',
-    'gitFrom',
-    'gitTo',
-    'gitChangeDocumentLabel',
-    'gitTransportRequestLabel',
-    'gitFormat'
+    'changeManagement',
   ]
 
 @Field Set parameterKeys = generalConfigurationKeys.plus([
@@ -44,8 +37,14 @@ def call(parameters = [:]) {
                                .mixinStageConfig(script.commonPipelineEnvironment, parameters.stageName?:env.STAGE_NAME, stepConfigurationKeys)
                                .mixinStepConfig(script.commonPipelineEnvironment, stepConfigurationKeys)
                                .mixin(parameters, parameterKeys)
-                               .withMandatoryProperty('endpoint')
                                .withMandatoryProperty('applicationId')
+                               .withMandatoryProperty('changeManagement/changeDocumentLabel')
+                               .withMandatoryProperty('changeManagement/clientOpts')
+                               .withMandatoryProperty('changeManagement/credentialsId')
+                               .withMandatoryProperty('changeManagement/endpoint')
+                               .withMandatoryProperty('changeManagement/git/from')
+                               .withMandatoryProperty('changeManagement/git/to')
+                               .withMandatoryProperty('changeManagement/git/format')
                                .withMandatoryProperty('filePath')
 
         Map configuration = configHelper.use()
@@ -58,15 +57,15 @@ def call(parameters = [:]) {
 
         } else {
 
-          echo "[INFO] Retrieving ChangeDocumentId from commit history [from: ${configuration.gitFrom}, to: ${configuration.gitTo}]." +
-               "Searching for pattern '${configuration.gitChangeDocumentLabel}'. Searching with format '${configuration.gitFormat}'."
+          echo "[INFO] Retrieving ChangeDocumentId from commit history [from: ${configuration.changeManagement.git.from}, to: ${configuration.changeManagement.git.to}]." +
+               "Searching for pattern '${configuration.changeManagement.changeDocumentLabel}'. Searching with format '${configuration.changeManagement.git.format}'."
 
             try {
                 changeDocumentId = cm.getChangeDocumentId(
-                                                  configuration.gitFrom,
-                                                  configuration.gitTo,
-                                                  configuration.gitChangeDocumentLabel,
-                                                  configuration.gitFormat
+                                                  configuration.changeManagement.git.from,
+                                                  configuration.changeManagement.git.to,
+                                                  configuration.changeManagement.changeDocumentLabel,
+                                                  configuration.changeManagement.git.format
                                                  )
 
                 echo "[INFO] ChangeDocumentId '${changeDocumentId}' retrieved from commit history"
@@ -114,17 +113,15 @@ def call(parameters = [:]) {
         echo "[INFO] Uploading file '${configuration.filePath}' to transport request '${configuration.transportRequestId}' of change document '${configuration.changeDocumentId}'."
 
 
-
             try {
-                echo "SCRIPT IS: "+script
 
                 cm.uploadFileToTransportRequest(configuration.changeDocumentId,
                                                 configuration.transportRequestId,
                                                 configuration.applicationId,
                                                 configuration.filePath,
-                                                configuration.endpoint,
-                                                configuration.credentialsId,
-                                                configuration.cmClientOpts)
+                                                configuration.changeManagement.endpoint,
+                                                configuration.changeManagement.credentialsId,
+                                                configuration.changeManagement.clientOpts)
             } catch(ChangeManagementException ex) {
                 throw new AbortException(ex.getMessage())
             }

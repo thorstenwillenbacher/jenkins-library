@@ -29,8 +29,6 @@ public class TransportRequestUploadFileTest extends BasePiperTest {
         .around(thrown)
         .around(jsr)
         .around(jlr)
-        .around(new JenkinsCredentialsRule(this)
-            .withCredentials('CM', 'anonymous', '********'))
 
     private Map cmUtilReceivedParams = [:]
 
@@ -39,8 +37,8 @@ public class TransportRequestUploadFileTest extends BasePiperTest {
 
         cmUtilReceivedParams.clear()
 
-        nullScript.commonPipelineEnvironment.configuration = [steps:
-                                     [transportRequestUploadFile:
+        nullScript.commonPipelineEnvironment.configuration = [general:
+                                     [changeManagement:
                                          [
                                           credentialsId: 'CM',
                                           endpoint: 'https://example.org/cm'
@@ -173,7 +171,8 @@ public class TransportRequestUploadFileTest extends BasePiperTest {
                 filePath: '/path',
                 endpoint: 'https://example.org/cm',
                 credentialsId: 'CM',
-                cmclientOpts: null
+                cmclientOpts: null,
+                cmclientOpts: ''
             ]
     }
 

@@ -39,8 +39,8 @@ public class ChangeManagementTest extends BasePiperTest {
         nullScript.setProperty("password","password")
 
         helper.registerAllowedMethod('usernamePassword', [Map], { Map m ->
-            binding.setProperty('username', 'defaultUser')
-            binding.setProperty('password', '********')
+           // binding.setProperty('username', 'defaultUser')
+            //binding.setProperty('password', '********')
         })
 
         helper.registerAllowedMethod('withCredentials', [List, Closure], { List l, Closure c ->

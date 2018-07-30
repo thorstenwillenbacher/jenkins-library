@@ -111,22 +111,18 @@ def call(parameters = [:]) {
 
         echo "[INFO] Closing transport request '${configuration.transportRequestId}' for change document '${configuration.changeDocumentId}'."
 
-        withCredentials([usernamePassword(
-            credentialsId: configuration.credentialsId,
-            passwordVariable: 'password',
-            usernameVariable: 'username')]) {
+
 
             try {
                 cm.releaseTransportRequest(configuration.changeDocumentId,
                                            configuration.transportRequestId,
                                            configuration.endpoint,
-                                           username,
-                                           password,
+                                           configuration.credentialsId,
                                            configuration.cmClientOpts)
             } catch(ChangeManagementException ex) {
                 throw new AbortException(ex.getMessage())
             }
-        }
+
 
         echo "[INFO] Transport Request '${configuration.transportRequestId}' has been successfully closed."
     }

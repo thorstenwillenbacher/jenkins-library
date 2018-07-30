@@ -65,75 +65,61 @@ public class ChangeManagement implements Serializable {
     }
 
     boolean isChangeInDevelopment(String changeId, String endpoint, String credentialsId, String clientOpts = '') {
-        script.withCredentials([script.usernamePassword(
-            credentialsId: credentialsId,
-            passwordVariable: 'password',
-            usernameVariable: 'username')]) {
-            script.echo "[INFO] Using credential ID '${credentialsId}' to connect with endpoint '${endpoint}'."
-            int rc = script.sh(returnStatus: true,
-                script: getCMCommandLine(endpoint, script.username, script.password,
-                    'is-change-in-development', ['-cID', "'${changeId}'",
-                                                 '--return-code'],
-                    clientOpts))
+        int rc = executeWithCredentials(endpoint, credentialsId, 'is-change-in-development', ['-cID', "'${changeId}'", '--return-code'],
+            clientOpts) as int
 
-            if (rc == 0) {
-                return true
-            } else if (rc == 3) {
-                return false
-            } else {
-                throw new ChangeManagementException("Cannot retrieve status for change document '${changeId}'. Does this change exist? Return code from cmclient: ${rc}.")
-            }
+        if (rc == 0) {
+            return true
+        } else if (rc == 3) {
+            return false
+        } else {
+            throw new ChangeManagementException("Cannot retrieve status for change document '${changeId}'. Does this change exist? Return code from cmclient: ${rc}.")
         }
     }
 
     String createTransportRequest(String changeId, String developmentSystemId, String endpoint, String credentialsId, String clientOpts = '') {
-
         try {
-            script.withCredentials([script.usernamePassword(
-                credentialsId: credentialsId,
-                passwordVariable: 'password',
-                usernameVariable: 'username')]) {
-                script.echo "[INFO] Using credential ID '${credentialsId}' to connect with endpoint '${endpoint}'."
-                script.echo "[INFO] Creating transport-request for Change-ID '${changeId}' in system '${developmentSystemId}'."
-                String transportRequest = script.sh(returnStdout: true,
-                                                    script: getCMCommandLine(endpoint,
-                                                                             script.username,
-                                                                             script.password,
-                                                                            'create-transport', ['-cID', changeId, '-dID', developmentSystemId],
-                                                                             clientOpts
-                                                                             )
-                                                   )
-                return transportRequest.trim()
-            }
-        } catch(AbortException e) {
-          throw new ChangeManagementException("Cannot create a transport request for change id '$changeId'. $e.message.")
+            def id = executeWithCredentials(endpoint, credentialsId, 'create-transport', ['-cID', changeId, '-dID', developmentSystemId],
+                clientOpts)
+            return id.trim() as String
+        }catch(AbortException e) {
+            throw new ChangeManagementException("Cannot create a transport request for change id '$changeId'. $e.message.")
         }
     }
 
-    void uploadFileToTransportRequest(String changeId, String transportRequestId, String applicationId, String filePath, String endpoint, String username, String password, String cmclientOpts = '') {
 
-        int rc = script.sh(returnStatus: true,
-                    script: getCMCommandLine(endpoint, username, password,
-                                            'upload-file-to-transport', ['-cID', changeId,
-                                                                         '-tID', transportRequestId,
-                                                                         applicationId, filePath],
-                                                                        cmclientOpts))
+    void uploadFileToTransportRequest(String changeId, String transportRequestId, String applicationId, String filePath, String endpoint, String credentialsId, String cmclientOpts = '') {
+        Object rc = executeWithCredentials(endpoint, credentialsId, 'upload-file-to-transport', ['-cID', changeId,
+                                                                                     '-tID', transportRequestId,
+                                                                                     applicationId, filePath],
+                                                                            cmclientOpts)
 
-        if(rc == 0) {
-            return
-        } else {
-            throw new ChangeManagementException("Cannot upload file '$filePath' for change document '$changeId' with transport request '$transportRequestId'. Return code from cmclient: $rc.")
-        }
+          if(rc == 0) {
+              return
+          } else {
+              throw new ChangeManagementException("Cannot upload file '$filePath' for change document '$changeId' with transport request '$transportRequestId'. Return code from cmclient: $rc.")
+          }
+
     }
 
-    void releaseTransportRequest(String changeId, String transportRequestId, String endpoint, String username, String password, String clientOpts = '') {
+    def executeWithCredentials(String endpoint, String credentialsId, String command, List<String> args, String clientOpts = '') {
+        script.withCredentials([script.usernamePassword(
+            credentialsId: credentialsId,
+            passwordVariable: 'password',
+            usernameVariable: 'username')]) {
+            def returnValue = script.sh(returnStatus: true,
+                script: getCMCommandLine(endpoint, script.username, script.password,
+                    command, args,
+                    clientOpts))
+            return returnValue;
 
-        int rc = script.sh(returnStatus: true,
-                    script: getCMCommandLine(endpoint, username, password,
-                                            'release-transport', ['-cID', changeId,
-                                                                  '-tID', transportRequestId],
-                                                                clientOpts))
+        }
 
+    }
+
+    void releaseTransportRequest(String changeId, String transportRequestId, String endpoint, String credentialsId, String clientOpts = '') {
+        int rc = executeWithCredentials( endpoint, credentialsId, 'release-transport', ['-cID', changeId,
+                                                                            '-tID', transportRequestId], clientOpts) as int
         if(rc == 0) {
             return
         } else {

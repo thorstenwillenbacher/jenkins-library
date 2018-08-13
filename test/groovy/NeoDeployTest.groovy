@@ -88,28 +88,6 @@ class NeoDeployTest extends BasePiperTest {
 
 
     @Test
-    void straightForwardTestConfigViaConfigProperties() {
-
-        nullScript.commonPipelineEnvironment.setConfigProperty('DEPLOY_HOST', 'test.deploy.host.com')
-        nullScript.commonPipelineEnvironment.setConfigProperty('CI_DEPLOY_ACCOUNT', 'trialuser123')
-        nullScript.commonPipelineEnvironment.configuration = [:]
-
-        jsr.step.call(script: nullScript,
-                       archivePath: archiveName,
-                       neoCredentialsId: 'myCredentialsId'
-        )
-
-        Assert.assertThat(jscr.shell,
-            new CommandLineMatcher().hasProlog("#!/bin/bash \"/opt/neo/tools/neo.sh\" deploy-mta")
-                                    .hasSingleQuotedOption('host', 'test\\.deploy\\.host\\.com')
-                                    .hasSingleQuotedOption('account', 'trialuser123')
-                                    .hasOption('synchronous', '')
-                                    .hasSingleQuotedOption('user', 'anonymous')
-                                    .hasSingleQuotedOption('password', '\\*\\*\\*\\*\\*\\*\\*\\*')
-                                    .hasDoubleQuotedOption('source', '.*'))
-    }
-
-    @Test
     void straightForwardTestConfigViaConfiguration() {
 
         jsr.step.call(script: nullScript,
@@ -474,34 +452,6 @@ class NeoDeployTest extends BasePiperTest {
             vmSize: 'lite')
     }
 
-    @Test
-    void deployHostProvidedAsDeprecatedParameterTest() {
-
-        nullScript.commonPipelineEnvironment.setConfigProperty('CI_DEPLOY_ACCOUNT', 'configPropsUser123')
-
-        jsr.step.call(script: nullScript,
-                             archivePath: archiveName,
-                             deployHost: "my.deploy.host.com"
-        )
-
-        assert jlr.log.contains("[WARNING][neoDeploy] Deprecated parameter 'deployHost' is used. This will not work anymore in future versions. Use parameter 'host' instead.")
-    }
-
-    @Test
-    void deployAccountProvidedAsDeprecatedParameterTest() {
-
-        nullScript.commonPipelineEnvironment.setConfigProperty('CI_DEPLOY_ACCOUNT', 'configPropsUser123')
-
-        jsr.step.call(script: nullScript,
-                             archivePath: archiveName,
-                             host: "my.deploy.host.com",
-                             deployAccount: "myAccount"
-        )
-
-        assert jlr.log.contains("Deprecated parameter 'deployAccount' is used. This will not work anymore in future versions. Use parameter 'account' instead.")
-    }
-
-
     private getVersionWithEnvVars(Map m) {
 
         if(m.script.contains('java -version')) {
@@ -589,7 +539,7 @@ class NeoDeployTest extends BasePiperTest {
             this.opts.add(new MapEntry(key, value))
             return this
         }
-        
+
         CommandLineMatcher hasArgument(String arg) {
             this.args.add(arg)
             return this

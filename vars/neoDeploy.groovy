@@ -1,6 +1,7 @@
 import com.sap.piper.Utils
 
 import com.sap.piper.ConfigurationLoader
+import com.sap.piper.ConfigurationHelper
 import com.sap.piper.ConfigurationMerger
 import com.sap.piper.ConfigurationType
 import com.sap.piper.tools.ToolDescriptor
@@ -48,12 +49,22 @@ def call(parameters = [:]) {
 
         prepareDefaultValues script: script
 
+        ConfigurationHelper configHelper = ConfigurationHelper
+            .loadStepDefaults(this)
+            .mixinStepConfig(script.commonPipelineEnvironment, stepConfigurationKeys)
+            .mixin(parameters, parameterKeys)
+            .withMandatoryProperty('neoDeploy/host')
+            .withMandatoryProperty('neoDeploy/account')
+            .withMandatoryProperty('neoDeploy/neoCredentialsId')
+
         final Map stepConfiguration = [:]
+
+        Map configuration = configHelper.use()
 
         // Backward compatibility: ensure old configuration is taken into account
         // The old configuration in not stage / step specific
 
-        def defaultDeployHost = script.commonPipelineEnvironment.getConfigProperty('DEPLOY_HOST')
+        /**def defaultDeployHost = script.commonPipelineEnvironment.getConfigProperty('DEPLOY_HOST')
         if(defaultDeployHost) {
             echo "[WARNING][${stepName}] A deprecated configuration framework is used for configuring parameter 'DEPLOY_HOST'. This configuration framework will be removed in future versions."
             stepConfiguration.put('host', defaultDeployHost)
@@ -80,15 +91,15 @@ def call(parameters = [:]) {
         if(credId && !parameters.neoCredentialsId) {
             echo "[WARNING][${stepName}] Deprecated parameter 'neoCredentialsId' from old configuration framework is used. This will not work anymore in future versions."
             parameters.put('neoCredentialsId', credId)
-        }
+        }*/
 
         // Backward compatibility end
 
         stepConfiguration.putAll(ConfigurationLoader.stepConfiguration(script, stepName))
 
-        Map configuration = ConfigurationMerger.merge(parameters, parameterKeys,
+        /**Map configuration = ConfigurationMerger.merge(parameters, parameterKeys,
                                                       stepConfiguration, stepConfigurationKeys,
-                                                      ConfigurationLoader.defaultStepConfiguration(script, stepName))
+                                                      ConfigurationLoader.defaultStepConfiguration(script, stepName))*/
 
         def archivePath = configuration.archivePath
         if(archivePath?.trim()) {
